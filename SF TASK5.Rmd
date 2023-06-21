@@ -1,0 +1,519 @@
+---
+title: "TASK 5: Exploratory Data Analysis - Sports"
+author: "Yogesh S"
+date: "2023-06-18"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+fig_width: 100
+fig_height: 8
+---
+
+```{r,echo=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8)
+```
+
+<br>
+
+##### **OBJECTIVE 1**: Perform Exploratory Data Analysis on dataset "Indian Premier League".
+
+##### **OBJECTIVE 2**: Find out the most Successful teams.
+
+##### **OBJECTIVE 3**: Identify players contributing to the team's success.
+
+##### **OBJECTIVE 4**: Suggest Teams and players for companies to endorse their products.
+
+<br>
+
+### Let us perform Exploratory Data Analysis on the Dataset (Objective 1)
+
+## 
+
+#### **Step 1: Load the new Datasets.**
+
+```{r}
+setwd("C:/R/R Sample Datasets")
+library(readr)
+library(ggplot2)
+myData<- read_csv("deliveries.csv")
+myData2<- read_csv("matches.csv")
+```
+
+## 
+
+<br>
+
+#### **Step 2: View Datasets.**
+
+```{r}
+View(myData)
+head(myData)
+View(myData2)
+head(myData2)
+```
+
+<br>
+
+#### **Step 3: Check for missing values in the datasets using colSums().**
+
+<br>
+
+##### Let us Check for missing values in "MATCHES" dataset.
+
+```{r}
+colSums(is.na(myData))
+```
+
+##### The last 3 columns have missing values\>90%
+
+## 
+
+##### ***METHOD1: Removal of largely inconsistent data***
+
+##### Let us remove these inconsistent data columns using the following code:
+
+<br>
+
+```{r}
+subs1<-subset(myData, select = -c(player_dismissed,dismissal_kind,fielder))
+colSums(is.na(subs1))
+```
+
+##### The dataset is now clear from any missing data.
+
+<br>
+
+##### Now let us Check for missing values in "MATCHES" dataset.
+
+```{r}
+colSums(is.na(myData2))
+```
+
+###### Remove the columns that have (missing values at random.)
+
+```{r}
+subs2<-subset(myData2, select = -c(umpire3))
+colSums(is.na(subs2))
+```
+
+<br>
+
+##### ***METHOD2: Replace value with other column value if NA values are found.***
+
+<br>
+
+##### Select subset containing NA values in the city column and select a replacement column.
+
+<br>
+
+```{r}
+library(dplyr)
+test <- subs2 %>% filter(is.na(city),)
+select(test,city,venue)
+subs2$city <- ifelse(is.na(subs2$city), subs2$venue, subs2$city)
+colSums(is.na(subs2))
+subs2<-na.omit(subs2)
+colSums(is.na(subs2))
+```
+
+<br>
+
+#### **Step 4: Summarize and understand the dataset better before analysis and visualization.**
+
+```{r}
+str(subs1)
+str(subs2)
+summary(subs1)
+summary(subs2)
+```
+
+<br>
+
+#### **Step 5: Analyze the data using Descriptive Statistics.**
+
+```{r}
+subset2<-filter(subs1,batsman=='MS Dhoni')
+subset4<-filter(subs2,winner=='Chennai Super Kings')
+mean(subset2$total_runs)
+mean(subset4$win_by_runs)
+var(subset4$win_by_wickets)
+median(subset2$total_runs)
+```
+
+<br>
+
+#### **Step 6: VISUALIZATION: We shall start Visualizing the Data when we solve the objectives of the task.**
+
+<br>
+
+### OBJECTIVE 2: Find the most successful teams
+
+```{r}
+q<-ggplot(subs2, aes(x=winner)) + geom_bar()
+q + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#### *According to the visualization, the most successful teams in IPL rank in the order:*
+
+##### 1. Mumbai Indians
+
+##### 2. Chennai Super Kings
+
+##### 3. Kolkata Knight Riders
+
+##### 4. Royal Challengers Bangalore
+
+<br>
+
+### OBJECTIVE 3: Find the players contributing to the success of each team
+
+##### ***Each team is colour coded according to their 'JERSEY'***
+
+<br>
+
+### ***Mumbai Indians***
+
+```{r}
+MI_POM<-filter(subs2,winner=='Mumbai Indians')
+MiMoM<-ggplot(MI_POM, aes(x=player_of_match)) + geom_bar(fill="blue")
+MiMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: RG Sharma**
+
+<br>
+
+### ***Chennai Super Kings***
+
+```{r}
+CSK_POM<-filter(subs2,winner=='Chennai Super Kings')
+CskMoM<-ggplot(CSK_POM, aes(x=player_of_match)) + geom_bar(fill="yellow")
+CskMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: MS Dhoni**
+
+<br>
+
+### ***Kolkata Knight Riders***
+
+```{r}
+KKR_POM<-filter(subs2,winner=='Kolkata Knight Riders')
+KkrMoM<-ggplot(KKR_POM, aes(x=player_of_match)) + geom_bar(fill="purple")
+KkrMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: AD Russell**
+
+<br>
+
+### ***Deccan Chargers***
+
+```{r}
+DEC_POM<-filter(subs2,winner=='Deccan Chargers')
+DecMoM<-ggplot(DEC_POM, aes(x=player_of_match)) + geom_bar(fill="navy")
+DecMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: AC Gilchrist**
+
+<br>
+
+### ***Delhi Capitals***
+
+```{r}
+DC_POM<-filter(subs2,winner=='Delhi Capitals')
+DcMoM<-ggplot(DC_POM, aes(x=player_of_match)) + geom_bar(fill="royalblue")
+DcMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: RR Pant & S Dhawan**
+
+<br>
+
+### ***Delhi Daredevils***
+
+```{r}
+DD_POM<-filter(subs2,winner=='Delhi Daredevils')
+DdMoM<-ggplot(DD_POM, aes(x=player_of_match)) + geom_bar(fill="red")
+DdMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: V Sehwag**
+
+<br>
+
+### ***Gujarat Lions***
+
+```{r}
+GL_POM<-filter(subs2,winner=='Gujarat Lions')
+GlMoM<-ggplot(GL_POM, aes(x=player_of_match)) + geom_bar(fill="orange")
+GlMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: AJ Finch & DR Smith**
+
+<br>
+
+### ***Kings XI Punjab***
+
+```{r}
+KXIP_POM<-filter(subs2,winner=='Kings XI Punjab')
+KxipMoM<-ggplot(KXIP_POM, aes(x=player_of_match)) + geom_bar(fill="brown2")
+KxipMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: SE Marsh**
+
+<br>
+
+### ***Kochi Tuskers Kerala***
+
+```{r}
+KTK_POM<-filter(subs2,winner=='Kochi Tuskers Kerala')
+KtkMoM<-ggplot(KTK_POM, aes(x=player_of_match)) + geom_bar(fill="black")
+KtkMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: BB McCullum & BJ Hodge**
+
+<br>
+
+### ***Pune Warriors***
+
+```{r}
+PW_POM<-filter(subs2,winner=='Pune Warriors')
+PwMoM<-ggplot(PW_POM, aes(x=player_of_match)) + geom_bar(fill="violet")
+PwMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: SPD Smith**
+
+<br>
+
+### ***Rajasthan Royals***
+
+```{r}
+RR_POM<-filter(subs2,winner=='Rajasthan Royals')
+RrMoM<-ggplot(RR_POM, aes(x=player_of_match)) + geom_bar(fill="cyan")
+RrMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: AM Rahane**
+
+<br>
+
+### ***Rising Pune SupergiantS***
+
+```{r}
+RPS_POM<-filter(subs2,winner=='Rising Pune Supergiant')
+RpsMoM<-ggplot(RPS_POM, aes(x=player_of_match)) + geom_bar(fill="pink")
+RpsMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: BA Stokes**
+
+<br>
+
+### ***Royal Challengers Bangalore***
+
+```{r}
+RCB_POM<-filter(subs2,winner=='Royal Challengers Bangalore')
+RcbMoM<-ggplot(RCB_POM, aes(x=player_of_match)) + geom_bar(fill="darkred")
+RcbMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: AB de Villiers**
+
+<br>
+
+### ***Sunrisers Hyderabad***
+
+```{r}
+SH_POM<-filter(subs2,winner=='Sunrisers Hyderabad')
+ShMoM<-ggplot(SH_POM, aes(x=player_of_match)) + geom_bar(fill="darkorange")
+ShMoM + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Player contributing most to the team's success: DA Warner**
+
+<br>
+
+### OBJECTIVE 4: Suggest players or teams for a company to endorse for its products
+
+#### Let us rerun our result from OBJECTIVE 2 to select successful teams to suggest.
+
+```{r}
+q + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+#### The successful teams are:
+
+##### **1.Mumbai Indians**
+
+##### **2.Chennai Super Kings**
+
+##### **3.Kolkata Knight Riders**
+
+##### **4.Royal Challengers Bangalore**
+
+<br>
+
+#### Let us analyze the popularity of players in the above teams by measuring the total runs scored by them
+
+#### **Higher Performance of the player = Greater Popularity**
+
+```{r}
+library(dplyr)
+```
+
+<br>
+
+### ***Mumbai Indians***
+
+```{r}
+MI<-filter(subs1,batting_team=='Mumbai Indians')
+MI_tbl <- MI %>% group_by(batsman) %>% 
+summarise(total_count=n(),
+.groups = 'drop')
+MI_tbl
+MI2 <- MI_tbl %>% as.data.frame()
+MI2 
+MIplot<- ggplot(MI2, aes(x=batsman, y=total_count))+geom_bar(width = 1, stat = "identity",fill="blue")
+MIplot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Players with most popularity for ads are:**
+
+##### 1. RG Sharma
+
+##### 2. SR Tendulkar
+
+##### 3. KA Pollard
+
+<br>
+
+### ***Chennai Super Kings***
+
+```{r}
+CSK<-filter(subs1,batting_team=='Chennai Super Kings')
+CSK_tbl <- CSK %>% group_by(batsman) %>% 
+  summarise(total_count=n(),
+            .groups = 'drop')
+CSK_tbl
+# Convert tibble to df
+CSK2 <- CSK_tbl %>% as.data.frame()
+CSK2 
+CSKplot<- ggplot(CSK2, aes(x=batsman, y=total_count))+geom_bar(width = 1, stat = "identity",fill="yellow")
+CSKplot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Players with most popularity for ads are:**
+
+##### 1. SK Raina
+
+##### 2. MS Dhoni
+
+##### 3. MEK Hussey
+
+<br>
+
+### ***Kolkata Knight Riders***
+
+```{r}
+KKR<-filter(subs1,batting_team=='Kolkata Knight Riders')
+KKR_tbl <- KKR %>% group_by(batsman) %>% 
+  summarise(total_count=n(),
+            .groups = 'drop')
+KKR_tbl
+# Convert tibble to df
+KKR2 <- KKR_tbl %>% as.data.frame()
+KKR2 
+KKRplot<- ggplot(KKR2, aes(x=batsman, y=total_count))+geom_bar(width = 1, stat = "identity",fill="purple")
+KKRplot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Players with most popularity for ads are:**
+
+##### 1. G Gambhir
+
+##### 2. RV Uthappa
+
+##### 3. YK Pathan
+
+<br>
+
+### ***Royal Challengers Bangalore***
+
+```{r}
+RCB<-filter(subs1,batting_team=='Royal Challengers Bangalore')
+RCB_tbl <- RCB %>% group_by(batsman) %>% 
+  summarise(total_count=n(),
+            .groups = 'drop')
+RCB_tbl
+# Convert tibble to df
+RCB2 <- RCB_tbl %>% as.data.frame()
+RCB2 
+RCBplot<- ggplot(RCB2, aes(x=batsman, y=total_count))+geom_bar(width = 1, stat = "identity",fill="darkred")
+RCBplot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+<br>
+
+##### **Players with most popularity for ads are:**
+
+##### 1. V Kohli
+
+##### 2. AB de Villiers
+
+##### 3. CH Gayle
+
+<br>
+
+### RESULT:
+
+<br>
+
+#### Thus, we have successfully completed an extensive "Exploratory Data Analysis" using the dataset "Indian Premier League"
+
+<br>
+
+#### We have also analyzed successful teams and suggested players and teams that can be used by companies to endorse their products.
